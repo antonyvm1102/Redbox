@@ -76,14 +76,14 @@ dates = np.delete(dates, [0])
 
 # data_max = np.zeros((7, len(dates)))
 # data_max[0, ...] = dates
-data_max = np.loadtxt("14208_Huygensgebouw_min_max_1300.txt")
-i_restart = 1301
+data_max = np.loadtxt("14208_Huygensgebouw_min_max_900.txt")
+i_restart = 901
 i_restart_array = np.arange(start = i_restart, stop = len(file_list), step = 1, dtype = "int")
 
 # index_data_max = np.argsort(data_max, axis=1)
 # print(index_data_max)
 
-count = 0
+count = data_max[1, ...].nonzero()[-1][-1] + 1
 
 for i in i_restart_array:       #range(len(file_list):
     # print("i = %s" %i)

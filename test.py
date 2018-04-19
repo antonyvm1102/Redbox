@@ -20,12 +20,16 @@ import numpy as np
 
 # data = np.loadtxt(filename, dtype = "float", comments = "#", unpack = True)
 
-data_max = np.loadtxt("14208_Huygensgebouw_min_max_900.txt")
+# data_max = np.loadtxt("14208_Huygensgebouw_min_max_900.txt")
+#
+# x_max = data_max[1, ...]
+#
+# print(x_max.shape)
+#
+# indices_nonzero = x_max.nonzero()
+#
+# print(data_max[1, ...].nonzero()[-1][-1])
 
-x_max = data_max[1, ...]
-
-print(x_max.shape)
-
-indices_nonzero = x_max.nonzero()
-
-print(data_max[1, ...].nonzero()[-1][-1])
+freqband = sp.OneThird_octave(0.625 / 2**(1/3), 80 * 2**(1/3))
+print(freqband)
+print(freqband[-1])

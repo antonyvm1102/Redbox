@@ -64,6 +64,13 @@ def FFT(signal,dT):
     freq = rfftfreq(len(ampl),d=dT)
     return ampl, freq
 
+def FFT_amplitude(signal):
+    """
+    :param signal: [array]
+    """
+    ampl = np.abs(rfft(signal)) * 2.0 / len(signal)
+    return ampl
+
 def OneThird_octave(low, high):
     """"
     :param low: lowest required frequency band
@@ -98,10 +105,35 @@ def FFT_to_OneThird_Octave(amplitude, df, low, high):
         lower_bound = spectrum[0] / one_third_octave ** 0.5
         upper_bound = spectrum[0] * one_third_octave ** 0.5
         for n in range(rms_amplitude.size):
-            rms_amplitude[n] = rms_freq_dom(amplitude[int(lower_bound // df):int(upper_bound // df)])
+            rms_amplitude[n] = rms_freq_dom(amplitude[int(lower_bound // df)*2:int(upper_bound // df)*2])
             lower_bound = lower_bound * one_third_octave
             upper_bound = upper_bound * one_third_octave
         return rms_amplitude, spectrum
+    else:
+        print("ERROR frequency range is not large enough")
+        return
+
+def FFT_to_OneThird_Octave2(amplitude, df, spectrum):
+    """
+    :param amplitude: amplitudes of the FFT [array]
+    :param frequency: frequencies of the FFT [array]
+
+    """
+
+    one_third_octave = 2 ** (1 / 3)
+    spectrum = spectrum
+    rms_amplitude = np.empty(len(spectrum))
+    high = spectrum[-1]
+
+    #check if the maximum available frequency exceeds the upper bound
+    if (df*len(amplitude))*one_third_octave**0.5 > high:
+        lower_bound = spectrum[0] / one_third_octave ** 0.5
+        upper_bound = spectrum[0] * one_third_octave ** 0.5
+        for n in range(rms_amplitude.size):
+            rms_amplitude[n] = rms_freq_dom(amplitude[int(lower_bound // df)*2:int(upper_bound // df)*2])
+            lower_bound = lower_bound * one_third_octave
+            upper_bound = upper_bound * one_third_octave
+        return rms_amplitude
     else:
         print("ERROR frequency range is not large enough")
         return

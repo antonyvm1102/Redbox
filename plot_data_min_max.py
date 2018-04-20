@@ -1,14 +1,66 @@
-from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange, date2num
+from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange, date2num, num2date
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.ma as ma
 
 """
 Plot 5 minutes min/max values for Betacampus pos1/2 vs Huygensgebouw.
+Optionally apply weekday between 6:00 and 18:00 hours filter.
 """
+filter = False
 
 data_Huygens = np.loadtxt("14208_Huygensgebouw_min_max.txt")
 data_pos1 = np.loadtxt("14208_betacampus_pos1_min_max.txt")
 data_pos2 = np.loadtxt("14208_betacampus_pos2_min_max.txt")
+
+if filter:
+    shape_x = data_pos1.shape[0]
+    shape_y = data_pos1.shape[1]
+
+    filter_weekday = np.ndarray((shape_x, shape_y), dtype = 'bool')
+
+    for i in range(shape_y):
+        if (num2date(data_pos1[0, i]).weekday() >= 0) and (num2date(data_pos1[0, i]).weekday() <= 4):
+            if (num2date(data_pos1[0, i]).hour >= 6) and (num2date(data_pos1[0, i]).hour <= 18):
+                filter_weekday[..., i] = False
+            else:
+                filter_weekday[..., i] = True
+        else:
+            filter_weekday[..., i] = True
+
+    data_pos1 = ma.array(data_pos1, mask = filter_weekday)
+
+    shape_x2 = data_pos2.shape[0]
+    shape_y2 = data_pos2.shape[1]
+
+    filter_weekday2 = np.ndarray((shape_x2, shape_y2), dtype = 'bool')
+
+    for i in range(shape_y2):
+        if (num2date(data_pos2[0, i]).weekday() >= 0) and (num2date(data_pos2[0, i]).weekday() <= 4):
+            if (num2date(data_pos2[0, i]).hour >= 6) and (num2date(data_pos2[0, i]).hour <= 18):
+                filter_weekday2[..., i] = False
+            else:
+                filter_weekday2[..., i] = True
+        else:
+            filter_weekday2[..., i] = True
+
+    data_pos2 = ma.array(data_pos2, mask = filter_weekday2)
+
+    shape_xH = data_Huygens.shape[0]
+    shape_yH = data_Huygens.shape[1]
+
+    filter_weekdayH = np.ndarray((shape_xH, shape_yH), dtype = 'bool')
+
+    for i in range(shape_yH):
+        if (num2date(data_Huygens[0, i]).weekday() >= 0) and (num2date(data_Huygens[0, i]).weekday() <= 4):
+            if (num2date(data_Huygens[0, i]).hour >= 6) and (num2date(data_Huygens[0, i]).hour <= 18):
+                filter_weekdayH[..., i] = False
+            else:
+                filter_weekdayH[..., i] = True
+        else:
+            filter_weekdayH[..., i] = True
+
+    data_Huygens = ma.array(data_Huygens, mask = filter_weekdayH)
 
 dates_Huygens = data_Huygens[0, ...]
 x_max_Huygens = data_Huygens[1, ...]

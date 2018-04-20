@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import signal_processing as sp
 import numpy.ma as ma

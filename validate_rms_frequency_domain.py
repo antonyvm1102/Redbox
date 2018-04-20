@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
+"""
+Validate translation of known time signal to RMS values per 1/3 octave band frequencies
+"""
+
 start_time = time.time()
 
 sampling_rate = 400
@@ -27,14 +31,15 @@ dtime = end_time-start_time
 print("elapsed time = %s" %dtime)
 
 plt.subplot(2,1,1)
-plt.plot(freqband, rms, '-')
-plt.plot(f,rms_theory, 'x')
+plt.plot(freqband, rms, '-', label = 'Numerical result')
+plt.plot(f,rms_theory, 'x', label = 'Theoretical result')
 plt.xscale('log')
 plt.xlim([1,100])
 plt.grid(which = 'both')
 #plt.yscale('log')
 plt.xlabel('1/3 octave band frequency [Hz]')
 plt.ylabel('RMS of amplitude [mm/s]')
+plt.legend(bbox_to_anchor=(-0.05,-0.2))
 plt.subplot(2,1,2)
 plt.plot(freq, ampl, '-')
 plt.plot(f,a, 'x')
@@ -44,4 +49,6 @@ plt.grid(which = 'both')
 plt.xlabel('frequency [Hz]')
 plt.ylabel('FFT amplitude [mm/s]')
 plt.plot()
+plt.subplots_adjust(top=0.95, bottom=0.1, left=0.15, right=0.95, hspace=0.3)
+plt.suptitle('Comparison of numerical and theoretical result for self-generated input signal')
 plt.show()

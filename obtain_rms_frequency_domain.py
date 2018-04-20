@@ -3,6 +3,11 @@ import numpy as np
 import sys
 import time
 
+"""
+Get RMS in frequency domain per 1/3 octave band for all signals and translate to min/mean/max per band.
+TODO: add option to exclude zeros from the minimum as in 'capture_min_max_mean_stdev.py'.
+"""
+
 def progress(count, total, status=''):
     bar_len = 60
     filled_len = int(round(bar_len * count / float(total)))
@@ -28,7 +33,9 @@ def largest_power_of_base(n, base = 2):
 
 stime = time.time()
 
-dir_path = "C:\\Users\\mel\\Documents\\Python\\Betacampus_pos1\\"
+# dir_path = "C:\\Users\\mel\\Documents\\Python\\Betacampus_pos1\\"
+# dir_path = "C:\\Users\\mel\\Documents\\Python\\Betacampus_pos2\\"
+dir_path = "C:\\Users\\mel\\Documents\\Python\\Huygensgebouw\\"
 
 file_list = sp.obtain_files(dir_path)
 
@@ -54,9 +61,25 @@ for i in range(len(file_list)):
     rms_z_array[..., i + 1] = sp.FFT_to_OneThird_Octave2(zf, f[1] - f[0], f_band)
     progress(i, len(file_list), "processing %s of %s" % (i, len(file_list)))
     if i%100 == 0:
-        np.savetxt("14208_betacampus_pos1_rms_x_%s.txt" % i, rms_x_array)
-        np.savetxt("14208_betacampus_pos1_rms_y_%s.txt" % i, rms_y_array)
-        np.savetxt("14208_betacampus_pos1_rms_z_%s.txt" % i, rms_z_array)
+        # np.savetxt("14208_betacampus_pos1_rms_x_%s.txt" % i, rms_x_array)
+        # np.savetxt("14208_betacampus_pos1_rms_y_%s.txt" % i, rms_y_array)
+        # np.savetxt("14208_betacampus_pos1_rms_z_%s.txt" % i, rms_z_array)
+        # np.savetxt("14208_betacampus_pos2_rms_x_%s.txt" % i, rms_x_array)
+        # np.savetxt("14208_betacampus_pos2_rms_y_%s.txt" % i, rms_y_array)
+        # np.savetxt("14208_betacampus_pos2_rms_z_%s.txt" % i, rms_z_array)
+        np.savetxt("14208_Huygensgebouw_rms_x_%s.txt" % i, rms_x_array)
+        np.savetxt("14208_Huygensgebouw_rms_y_%s.txt" % i, rms_y_array)
+        np.savetxt("14208_Huygensgebouw_rms_z_%s.txt" % i, rms_z_array)
+
+# np.savetxt("14208_betacampus_pos1_rms_x.txt", rms_x_array)
+# np.savetxt("14208_betacampus_pos1_rms_y.txt", rms_y_array)
+# np.savetxt("14208_betacampus_pos1_rms_z.txt", rms_z_array)
+# np.savetxt("14208_betacampus_pos2_rms_x.txt", rms_x_array)
+# np.savetxt("14208_betacampus_pos2_rms_y.txt", rms_y_array)
+# np.savetxt("14208_betacampus_pos2_rms_z.txt", rms_z_array)
+np.savetxt("14208_Huygensgebouw_rms_x.txt", rms_x_array)
+np.savetxt("14208_Huygensgebouw_rms_y.txt", rms_y_array)
+np.savetxt("14208_Huygensgebouw_rms_z.txt", rms_z_array)
 
 rms_x_all = np.zeros((len(f_band), 6))
 rms_y_all = np.zeros((len(f_band), 6))
@@ -83,9 +106,15 @@ rms_z_all[..., 3] = rms_z_array[..., 1:].mean(axis = 1)
 rms_z_all[..., 4] = rms_z_array[..., 1:].mean(axis = 1) + rms_z_array[..., 1:].std(axis = 1)
 rms_z_all[..., 5] = rms_z_array[..., 1:].max(axis = 1)
 
-np.savetxt("14208_betacampus_pos1_rms_x_all.txt", rms_x_all)
-np.savetxt("14208_betacampus_pos1_rms_y_all.txt", rms_y_all)
-np.savetxt("14208_betacampus_pos1_rms_z_all.txt", rms_z_all)
+# np.savetxt("14208_betacampus_pos1_rms_x_all.txt", rms_x_all)
+# np.savetxt("14208_betacampus_pos1_rms_y_all.txt", rms_y_all)
+# np.savetxt("14208_betacampus_pos1_rms_z_all.txt", rms_z_all)
+# np.savetxt("14208_betacampus_pos2_rms_x_all.txt", rms_x_all)
+# np.savetxt("14208_betacampus_pos2_rms_y_all.txt", rms_y_all)
+# np.savetxt("14208_betacampus_pos2_rms_z_all.txt", rms_z_all)
+np.savetxt("14208_Huygensgebouw_rms_x_all.txt", rms_x_all)
+np.savetxt("14208_Huygensgebouw_rms_y_all.txt", rms_y_all)
+np.savetxt("14208_Huygensgebouw_rms_z_all.txt", rms_z_all)
 
 etime = time.time()
 

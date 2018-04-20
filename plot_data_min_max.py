@@ -1,9 +1,11 @@
 from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange, date2num
 import matplotlib.pyplot as plt
 import numpy as np
-import datetime as dt
 
-# data = np.loadtxt("14208_betacampus_pos2_min_max.txt")
+"""
+Plot 5 minutes min/max values for Betacampus pos1/2 vs Huygensgebouw.
+"""
+
 data_Huygens = np.loadtxt("14208_Huygensgebouw_min_max.txt")
 data_pos1 = np.loadtxt("14208_betacampus_pos1_min_max.txt")
 data_pos2 = np.loadtxt("14208_betacampus_pos2_min_max.txt")

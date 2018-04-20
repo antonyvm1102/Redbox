@@ -5,6 +5,10 @@ import numpy as np
 from matplotlib.dates import drange, date2num
 import sys
 
+"""
+Obtain min/max values per 5 minutes of signal in time domain.
+"""
+
 def progress(count, total, status=''):
     bar_len = 60
     filled_len = int(round(bar_len * count / float(total)))

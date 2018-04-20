@@ -1,11 +1,19 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import signal_processing as sp
-import math
 
-rms_x_all = np.loadtxt("14208_betacampus_pos1_rms_x_all.txt")
-rms_y_all = np.loadtxt("14208_betacampus_pos1_rms_y_all.txt")
-rms_z_all = np.loadtxt("14208_betacampus_pos1_rms_z_all.txt")
+"""
+Plot RMS for x-/y-/z-signal vs 1/3 octave band frequencies and compare to VC curves.
+"""
+
+# rms_x_all = np.loadtxt("14208_betacampus_pos1_rms_x_all.txt")
+# rms_y_all = np.loadtxt("14208_betacampus_pos1_rms_y_all.txt")
+# rms_z_all = np.loadtxt("14208_betacampus_pos1_rms_z_all.txt")
+# rms_x_all = np.loadtxt("14208_betacampus_pos2_rms_x_all.txt")
+# rms_y_all = np.loadtxt("14208_betacampus_pos2_rms_y_all.txt")
+# rms_z_all = np.loadtxt("14208_betacampus_pos2_rms_z_all.txt")
+rms_x_all = np.loadtxt("14208_Huygensgebouw_rms_x_all.txt")
+rms_y_all = np.loadtxt("14208_Huygensgebouw_rms_y_all.txt")
+rms_z_all = np.loadtxt("14208_Huygensgebouw_rms_z_all.txt")
 
 f_band = rms_x_all[..., 0]
 
@@ -29,10 +37,11 @@ v_VCH = VC_curve(0.390625/1000., 8., f_band)
 
 plt.subplot(3,1,1)
 plt.plot(rms_x_all[..., 0], rms_x_all[..., 5], c = 'k', ls = 'dotted', label = 'maximum')
-plt.plot(rms_x_all[..., 0], rms_x_all[..., 4], c = 'k', ls = 'dashed', label = 'mean + st.dev.')
+# plt.plot(rms_x_all[..., 0], rms_x_all[..., 4], c = 'k', ls = 'dashed', label = 'mean + st.dev.')
 plt.plot(rms_x_all[..., 0], rms_x_all[..., 3], c = 'k', ls = 'solid', label = 'mean')
-plt.plot(rms_x_all[..., 0], rms_x_all[..., 2], c = 'k', ls = 'dashed', label = 'mean - st.dev.')
+# plt.plot(rms_x_all[..., 0], rms_x_all[..., 2], c = 'k', ls = 'dashed', label = 'mean - st.dev.')
 plt.plot(rms_x_all[..., 0], rms_x_all[..., 1], c = 'k', ls = 'dotted', label = 'minimum')
+plt.fill_between(rms_x_all[..., 0], rms_x_all[... , 1], rms_x_all[..., 5], color = 'lightgray')
 plt.plot(f_band, v_VCA, '-', label = 'VC-A')
 plt.plot(f_band, v_VCB, '-', label = 'VC-B')
 plt.plot(f_band, v_VCC, '-', label = 'VC-C')
@@ -50,10 +59,11 @@ plt.xlabel('1/3 octave band frequency [Hz]')
 plt.ylabel('RMS of x-signal [mm/s]')
 plt.subplot(3,1,2)
 plt.plot(rms_y_all[..., 0], rms_y_all[..., 5], c = 'k', ls = 'dotted', label = 'maximum')
-plt.plot(rms_y_all[..., 0], rms_y_all[..., 4], c = 'k', ls = 'dashed', label = 'mean + st.dev.')
+# plt.plot(rms_y_all[..., 0], rms_y_all[..., 4], c = 'k', ls = 'dashed', label = 'mean + st.dev.')
 plt.plot(rms_y_all[..., 0], rms_y_all[..., 3], c = 'k', ls = 'solid', label = 'mean')
-plt.plot(rms_y_all[..., 0], rms_y_all[..., 2], c = 'k', ls = 'dashed', label = 'mean - st.dev.')
+# plt.plot(rms_y_all[..., 0], rms_y_all[..., 2], c = 'k', ls = 'dashed', label = 'mean - st.dev.')
 plt.plot(rms_y_all[..., 0], rms_y_all[..., 1], c = 'k', ls = 'dotted', label = 'minimum')
+plt.fill_between(rms_y_all[..., 0], rms_y_all[... , 1], rms_y_all[..., 5], color = 'lightgray')
 plt.plot(f_band, v_VCA, '-', label = 'VC-A')
 plt.plot(f_band, v_VCB, '-', label = 'VC-B')
 plt.plot(f_band, v_VCC, '-', label = 'VC-C')
@@ -70,10 +80,11 @@ plt.xlabel('1/3 octave band frequency [Hz]')
 plt.ylabel('RMS of y-signal [mm/s]')
 plt.subplot(3,1,3)
 plt.plot(rms_z_all[..., 0], rms_z_all[..., 5], c = 'k', ls = 'dotted', label = 'maximum')
-plt.plot(rms_z_all[..., 0], rms_z_all[..., 4], c = 'k', ls = 'dashed', label = 'mean + st.dev.')
+# plt.plot(rms_z_all[..., 0], rms_z_all[..., 4], c = 'k', ls = 'dashed', label = 'mean + st.dev.')
 plt.plot(rms_z_all[..., 0], rms_z_all[..., 3], c = 'k', ls = 'solid', label = 'mean')
-plt.plot(rms_z_all[..., 0], rms_z_all[..., 2], c = 'k', ls = 'dashed', label = 'mean - st.dev.')
+# plt.plot(rms_z_all[..., 0], rms_z_all[..., 2], c = 'k', ls = 'dashed', label = 'mean - st.dev.')
 plt.plot(rms_z_all[..., 0], rms_z_all[..., 1], c = 'k', ls = 'dotted', label = 'minimum')
+plt.fill_between(rms_z_all[..., 0], rms_z_all[... , 1], rms_z_all[..., 5], color = 'lightgray')
 plt.plot(f_band, v_VCA, '-', label = 'VC-A')
 plt.plot(f_band, v_VCB, '-', label = 'VC-B')
 plt.plot(f_band, v_VCC, '-', label = 'VC-C')
@@ -90,5 +101,5 @@ plt.xlabel('1/3 octave band frequency [Hz]')
 plt.ylabel('RMS of z-signal [mm/s]')
 plt.plot()
 plt.subplots_adjust(top=0.95, bottom=0.05, left=0.15, right=0.95, hspace=0.3)
-plt.suptitle('Effective velocities at Betacampus position 1 based on 431 signals of 22 minutes per signal')
+plt.suptitle('Effective velocities at Huygensgebouw based on 1358 signals of 22 minutes per signal')
 plt.show()

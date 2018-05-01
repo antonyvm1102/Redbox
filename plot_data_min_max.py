@@ -7,7 +7,7 @@ import numpy.ma as ma
 Plot 5 minutes min/max values for Betacampus pos1/2 vs Huygensgebouw.
 Optionally apply weekday between 6:00 and 18:00 hours filter.
 """
-filter = False
+filter = True
 
 data_Huygens = np.loadtxt("14208_Huygensgebouw_min_max.txt")
 data_pos1 = np.loadtxt("14208_betacampus_pos1_min_max.txt")

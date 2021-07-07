@@ -1,45 +1,30 @@
 import numpy as np
+import file_manager as fm
+import pandas as pd
 from scipy.fftpack import rfft, rfftfreq
+from scipy.signal import butter, sosfiltfilt, sosfreqz
 import matplotlib.pyplot as plt
 import os
 import math
 
-def obtain_files(folder_path):
-    """"
-    returns all items in a certain folder
-    :param folder_path: [path]
-    """
-    return os.listdir(folder_path)
 
-def obtain_data(filename):
-    """
-    extract relevant data from txt file produced by the logger
-    :param filename : (raw string)
-    :return (tpl) (velocity x-direction, velocity y-direction, velocity z-direction)
-    """
-    with open(filename, encoding='latin-1') as f:
-        lines = f.readlines()
-        skip = 0
-        i = 0
-        while lines[i].startswith('#'):
-            skip += 1
-            i +=1
-        t, x, y, z = np.loadtxt(filename, skiprows=skip ,unpack=True)
-    return t,x,y,z
 
 def rms_time_dom(signal):
     N = len(signal)
     return math.sqrt(np.sum(np.power(signal,2))/N)
 
+
 def rms_freq_dom(amplitude):
     return math.sqrt(2*np.sum(np.power(amplitude, 2)))/2
 
+
 def n_minutes_max(signal, dt, n=5):
-    """"
+    """"10
     :param signal (np.array or list)
     :param n: n-minutes range to obtain maximum (int)
     :param dt: sample space or time between samples
 
+    this functions does not return the real time of the occuring
     return: numpy array with
     """
 
@@ -55,13 +40,61 @@ def n_minutes_max(signal, dt, n=5):
     maximums = np.delete(maximums,0)
     return maximums
 
-def FFT(signal,dT):
+
+def n_seconds_min_max(data, dt, n):
+    """
+    :param data = 2D array with t and velocity in one direction
+    :param dt = sample space or time between samples
+    :param n = in seconds for which interval maximum value is determined
+
+    collect minimum and maximum values of the data over an interval
+    """
+    samples = int(1/dt * n)
+    start = 0
+    end = samples
+
+    min_max_array = np.zeros([1, 2])   # col 1 = time [s], col 2 = min and max of direction
+    while start < data.shape[0]:
+        index_max = start + np.argmax(data[start:end, 1])
+        index_min = start + np.argmin(data[start:end, 1])
+        x = np.array([[data[index_max,0], data[index_max,1]], [data[index_min,0], data[index_min,1]]])
+        min_max_array = np.concatenate((min_max_array, x), axis=0)
+
+        start = end
+        end += samples
+
+    min_max_array = np.delete(min_max_array,0,0)
+    min_max_array = min_max_array[min_max_array[:,0].argsort()]
+    return min_max_array
+
+
+def FFT(signal,args):
     """
     :param signal: [array]
-    :param dT: sample space [float]
+    :param args: list with argumenst, only sample space requird [float]
     """
     ampl = np.abs(rfft(signal)) * 2.0 / len(signal)
-    freq = rfftfreq(len(ampl),d=dT)
+    freq = rfftfreq(len(ampl),d=args[0])
+    return ampl, freq
+
+def FFT2(signal,args):
+    """
+    :param signal: [array]
+    :param args: list with argumenst, only sample space requird [float]
+
+    calculates the modulus of the frequencies.
+    """
+    rampl = np.abs(rfft(signal)) * 2.0 / len(signal)
+    rfreq = rfftfreq(len(rampl),d=args[0])
+
+    freq = np.unique(rfreq)
+    rampl = []
+
+    for n in range(rfreq.size-1):
+        if rfreq[n] == rfreq[n+1]:
+            rampl.append((rampl[n]**2+rampl[n+1]**2)**0.5)
+
+    ampl = np.asarray(ampl)
     return ampl, freq
 
 def FFT_amplitude(signal):
@@ -70,6 +103,9 @@ def FFT_amplitude(signal):
     """
     ampl = np.abs(rfft(signal)) * 2.0 / len(signal)
     return ampl
+
+def FFT_bands(bandwidth, low, high):
+    return np.arange(low+bandwidth/2, high-bandwidth/2, bandwidth)
 
 def OneThird_octave(low, high):
     """"
@@ -88,6 +124,33 @@ def OneThird_octave(low, high):
         N += 1
     first_band = first_band * one_third_octave
     return first_band * np.logspace(0, N, endpoint=False, num=N, base=one_third_octave)
+
+
+def FFT_to_other_bandwidth(amplitude, freq, bandwidth, low=0, high=0):
+    """
+    :param amplitude: array with RMS amplitudes per frequency PAS OP! alleen RMS-amplitudes invoeren (=Peak/sqrt(2))
+    :param df: size of current frequency bin
+    :param freq: array with current frequencies
+    :param low: lowest required bin, Default:0
+    :param high: highest required bin, Default = freq[-1]
+    :return: tpl with
+    """
+    if high == 0:
+        high = freq[-1]
+    elif freq[-1] > high:
+        print("ERROR frequency range is not large enough")
+        return
+
+    spectrum = FFT_bands(bandwidth, low, high)
+
+    nw_amplitude = np.empty(len(spectrum))
+
+    for n in range(len(nw_amplitude)):
+        top = spectrum[n] + bandwidth / 2
+        bot = spectrum[n] - bandwidth / 2
+        bins = amplitude[(freq >= bot) & (freq < top)]
+        nw_amplitude[n] = np.sqrt(np.sum(np.power(bins, 2)))
+    return spectrum, nw_amplitude
 
 def FFT_to_OneThird_Octave(amplitude, df, low, high):
     """
@@ -113,6 +176,7 @@ def FFT_to_OneThird_Octave(amplitude, df, low, high):
         print("ERROR frequency range is not large enough")
         return
 
+
 def FFT_to_OneThird_Octave2(amplitude, df, spectrum):
     """
     :param amplitude: amplitudes of the FFT [array]
@@ -137,6 +201,9 @@ def FFT_to_OneThird_Octave2(amplitude, df, spectrum):
     else:
         print("ERROR frequency range is not large enough")
         return
+"""
+integration and differentiation
+"""
 
 def integ_to_disp(vel,dt):
     """
@@ -149,6 +216,7 @@ def integ_to_disp(vel,dt):
     for i in range(1, len(disp)):
         disp[i] = disp[i - 1] + (vel[i + 1] - vel[i]) * dt
     return disp
+
 
 def diff_to_acc(vel,dt):
     """
@@ -164,8 +232,10 @@ def diff_to_acc(vel,dt):
 
     return acc
 
+
 def select_part(start, stop, to_select):
     """
+    TODO nagaan of deze functie werkelijk nuttig is
         :param start: start of selection(flt/int)
         :param stop: end time of selection (flt/int)
         :return: (tpl) (displacement u, velocity v)
@@ -173,10 +243,133 @@ def select_part(start, stop, to_select):
     i = int(start / dt)
     j = int(stop / dt)
     lst = []
-    for k in rang(i,j):
+    for k in range(i,j):
         lst.append(to_select[k])
-    lst_t = linspace(start, dt, stop)
+    lst_t = np.linspace(start, dt, stop)
 
     return lst_t, lst
 
+"""Filters """
 
+def butter_bandpass(lowcut, highcut, fs, order=5):
+    """
+    param: lowcut : lower bandpass [Hz]
+
+    """
+    nyq = 0.5 * fs
+
+    if lowcut == 0:
+        typ = 'low'
+        high = (highcut) / nyq
+        w = high
+    else:
+        typ = 'band'
+        low = (lowcut) / nyq
+        high = (highcut) / nyq
+        w = [low, high]
+
+    sos = butter(order, w, analog=False, btype=typ, output='sos')
+    return sos
+
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    sos = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = sosfiltfilt(sos, data)
+    return y
+
+""" Plots"""
+
+
+
+""" SBR methods"""
+
+def compute_veff_sbr(v,T,Ts=0.125, a=8):
+    """
+    :param =df =  vels (mm/s)
+    :param = T = sample space (s)
+    :param a = each a'th sample is used
+    """
+    l = int(np.log2(v.size)+1) #nth-power
+    N_org = v.size
+    N = 2**l
+    t = np.linspace(0,N*T,N,endpoint=False)
+
+    v = np.pad(v,(0,N-v.size),'constant')
+    vibrations_fft = np.fft.fft(v)
+
+    f = np.linspace(0, 1 / T, N, endpoint=False)
+
+    f_mod=f
+    f_mod[f<1.0]=0.1
+
+    weight = 1 / np.sqrt(1 + (f_mod/5.6) ** 2)
+    vibrations_fft_w = weight * vibrations_fft
+    vibrations_w = np.fft.ifft(vibrations_fft_w).real
+
+    t_sel = t[:N_org:a]
+    vibrations_w = vibrations_w[:N_org:a]
+    v_sqrd_w = vibrations_w ** 2
+
+    v_eff = np.zeros(t_sel.size)
+    dt = t_sel[1] - t_sel[0]
+    print('compute v_eff')
+    for i in range(t_sel.size - 1):
+        g_xi = np.exp(-t_sel[:i + 1][::-1] / Ts)
+        v_eff[i] = np.sqrt(1 / Ts * np.trapz(g_xi * v_sqrd_w[:i + 1], dx=dt))
+        fm.progress(i,t_sel.size-1,"processing %s of %s" % (i + 1, t_sel.size))
+
+    idx = np.argmax(v_eff)
+    return idx, t_sel, v_eff
+
+
+def plot_SBR_B(save_to_path,vibrations, vibrations_w,v_eff,t_sel):
+    """
+    vibrations, vibrations_w,v_eff are optional arguments
+    """
+    plt.figure(figsize=(10, 6))
+    if vibrations:
+        plt.plot(t_sel, vibrations, label="signal")
+    if vibrations_w:
+        plt.plot(t_sel, vibrations_w, label="weighted_signal")
+    if v_eff:
+        plt.plot(t_sel, v_eff, label="v_eff")
+        plt.text(t[idx], v_eff[idx], "max v_eff: {}".format(round(v_eff[idx], 3)), color="r")
+    plt.xlabel("t [s]")
+    plt.ylabel("v [mm/s]")
+    plt.title("velocity")
+    plt.legend()
+    plt.savefig(save_to_path.format("png"))
+    plt.show()
+
+def plot_SBR_B_xyz(save_to_path,vibrations, vibrations_w,v_eff,t_sel):
+    """
+    TODO check use of pandas plotting wrapper
+    vibrations, vibrations_w,v_eff are optional arguments (tpl)
+    """
+
+    fig = plt.figure(figsize=(10, 18))
+    ax1 = fig.add_subplot(3,1,1)
+    ax2 = fig.add_subplot(3,1,2)
+    ax3 = fig.add_subplot(3,1,3)
+    if vibrations:
+        ax1.plot(t_sel, vibrations[0], label="signal")
+        ax2.plot(t_sel, vibrations[1], label="signal")
+        ax3.plot(t_sel, vibrations[2], label="signal")
+    if vibrations_w:
+        ax1.plot(t_sel, vibrations_w[0], label="weighted_signal")
+        ax2.plot(t_sel, vibrations_w[1], label="weighted_signal")
+        ax3.plot(t_sel, vibrations_w[2], label="weighted_signal")
+    if v_eff:
+        idx = [np.argmax(v_eff[x]) for x in range(len(v_eff))]
+        ax1.plot(t_sel, v_eff, label="v_eff")
+        ax1.text(t[idx[0]], v_eff[0][idx[0]], "max v_eff: {}".format(round(v_eff[idx], 3)), color="r")
+        ax2.plot(t_sel, v_eff, label="v_eff")
+        ax2.text(t[idx[1]], v_eff[1][idx[1]], "max v_eff: {}".format(round(v_eff[idx], 3)), color="r")
+        ax3.plot(t_sel, v_eff, label="v_eff")
+        ax3.text(t[idx[1]], v_eff[2][idx[2]], "max v_eff: {}".format(round(v_eff[idx], 3)), color="r")
+    plt.xlabel("t [s]")
+    plt.ylabel("v [mm/s]")
+    plt.title("velocity")
+    plt.legend()
+    plt.savefig(save_to_path.format("png"))
+    plt.show()

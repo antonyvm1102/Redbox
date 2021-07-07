@@ -38,15 +38,18 @@ ax.plot(t, x)
 ax.set_xlabel('Time [s]')
 ax.set_ylabel('Signal amplitude')
 
-X = fftpack.rfft(x)
-freqs = fftpack.rfftfreq(len(x)) * f_s
+X_sci = fftpack.rfft(x)
+X_np = np.fft.rfft(x)
+freqs_sci = fftpack.rfftfreq(len(x)) * f_s
+freqs_np = np.fft.rfftfreq(len(x)) *f_s
+print('Magnitude: length of scipy is %s. Length of np is %s' %X_sci.size, X_np.size))
+print('Frequencies: length of scipy is %s. Length of np is %s' %(freqs_sci.size, freqs_np.size))
 
-print(X)
-print(freqs)
 
 fig, ax = plt.subplots()
 
-ax.stem(freqs, np.abs(X)/f_s)
+ax.bar(freqs_sci, np.abs(X_sci)/f_s, 'r')
+ax.bar(freqs_np, np.abs(X_np)/f_s, 'b')
 ax.set_xlabel('Frequency in Hertz [Hz]')
 ax.set_ylabel('Frequency Domain (Spectrum) Magnitude')
 ax.set_xlim(-f_s / 2, f_s / 2)
@@ -59,3 +62,4 @@ rms_freq = rms_freq_dom(X)
 print(rms_theory, rms_time, rms_freq)
 
 plt.show()
+

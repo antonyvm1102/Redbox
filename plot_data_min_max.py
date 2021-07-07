@@ -112,7 +112,7 @@ ax2.plot_date(dates_Huygens,y_min_Huygens, 'ro', markersize = 2)
 ax2.xaxis.set_major_locator(DayLocator())
 ax2.xaxis.set_minor_locator(HourLocator(np.arange(0, 25, 6)))
 ax2.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
-ax2.set_ylim(bottom = -0.2, top = 0.2)
+ax2.set_ylim(bottom=-0.2, top = 0.2)
 ax2.set_title('velocity y_axis - min/max per 5 minutes [mm/s]')
 ax2.fmt_xdata = DateFormatter('%Y-%m-%d %H:%M:%S')
 

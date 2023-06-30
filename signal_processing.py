@@ -71,7 +71,7 @@ def n_seconds_min_max(data, dt, n):
 def FFT(signal,args):
     """
     :param signal: [array]
-    :param args: list with argumenst, only sample space requird [float]
+    :param args: list with argumenst, only sample space required [float]
     """
     ampl = np.abs(rfft(signal)) * 2.0 / len(signal)
     freq = rfftfreq(len(ampl),d=args[0])
